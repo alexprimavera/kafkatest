@@ -1,0 +1,42 @@
+services:
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    hostname: broker
+    ports:
+      - "29092:9092"
+    environment:
+      # Broker ID
+      KAFKA_BROKER_ID: 1
+      KAFKA_NODE_ID: 1
+
+      # Listeners configuration
+      KAFKA_ADVERTISED_LISTENERS: SASL_PLAINTEXT://broker:9092,BROKER://broker:29092
+      KAFKA_LISTENERS: BROKER://broker:29092,CONTROLLER://broker:29093,SASL_PLAINTEXT://broker:9092
+
+      # Security Protocol
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: BROKER:PLAINTEXT,CONTROLLER:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT
+
+      # SASL Configuratipn
+      KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SASL_PLAINTEXT
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: SCRAM-SHA-512
+      KAFKA_SASL_ENABLED_MECHANISMS: SCRAM-SHA-512
+
+      # Controller Configuration
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      # Process roles
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      # JAAS Configuration
+      KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/kafka.jaas.conf
+
+      # Log directories
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+
+      # Cluster ID
+      CLUSTER_ID: MkU30EVBMTcwNTJENDM2Qk
+
+    volumes:
+      - ./conf:/etc/kafka/secrets
